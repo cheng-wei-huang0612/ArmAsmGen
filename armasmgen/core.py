@@ -43,6 +43,13 @@ class BaseAsm:
         inst.depth = getattr(self, 'depth', 0)
         self._inst.append(inst)
 
+    def comment(self, text: str):
+        """Add a comment to the assembly code"""
+        self.emit(Instruction(
+            template=f"// {text}",
+            dsts=[], srcs=[], kwargs={}
+        ))
+
     def _reg_to_str(self, reg: RegArg) -> str:
         """Convert register argument to string representation"""
         if hasattr(reg, '__str__'):  # Works for both Register objects and strings

@@ -27,6 +27,7 @@ class RegisterWidth(Enum):
     
     # Vector registers  
     V = "v"     # 128-bit vector
+    Q = "q"     # 128-bit vector (explicit quad-word)
     D = "d"     # 64-bit scalar
     S = "s"     # 32-bit scalar
     H = "h"     # 16-bit scalar
@@ -128,8 +129,13 @@ def v_reg(n: int) -> Register:
     """Create v register (128-bit vector)"""
     return Register.physical(f"v{n}", RegisterType.VECTOR, RegisterWidth.V, n)
 
+def q_reg(n: int) -> Register:
+    """Create q register (128-bit vector, explicit quad-word)"""
+    return Register.physical(f"q{n}", RegisterType.VECTOR, RegisterWidth.Q, n)
+
 def d_reg(n: int) -> Register:
     """Create d register (64-bit vector scalar)"""
+    return Register.physical(f"d{n}", RegisterType.VECTOR, RegisterWidth.D, n)
     return Register.physical(f"d{n}", RegisterType.VECTOR, RegisterWidth.D, n)
 
 def virtual_x(name: str) -> Register:

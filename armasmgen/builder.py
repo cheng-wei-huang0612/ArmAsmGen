@@ -1,7 +1,7 @@
 # armasmgen/builder.py
 from contextvars import ContextVar
 from .core import BaseAsm, Instruction
-from .mixins import arithmetic, memory, logic, control
+from .mixins import arithmetic, memory, logic, control, vector_arithmetic
 
 _current: ContextVar["Block"] = ContextVar("_current")
 
@@ -9,7 +9,8 @@ class Block(BaseAsm,
             arithmetic.ArithmeticMixin,
             memory.MemoryMixin,
             logic.LogicMixin,
-            control.ControlFlowMixin):
+            control.ControlFlowMixin,
+            vector_arithmetic.VectorArithmeticMixin):
     def __init__(self, label: str | None = None):
         super().__init__()
         self.label = label

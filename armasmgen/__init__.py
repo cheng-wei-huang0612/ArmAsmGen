@@ -22,7 +22,7 @@ from .builder import ASMCode, Block
 from .register import (
     Register, RegisterType, RegisterWidth, RegisterPool,
     AArch64RegisterPools, aarch64_pools,
-    x_reg, w_reg, v_reg, d_reg, virtual_x, virtual_v
+    x_reg, w_reg, v_reg, q_reg, d_reg, virtual_x, virtual_v
 )
 
 # Import mixins for direct access
@@ -55,6 +55,7 @@ __all__ = [
     "x_reg",
     "w_reg", 
     "v_reg",
+    "q_reg",
     "d_reg",
     "virtual_x",
     "virtual_v",
