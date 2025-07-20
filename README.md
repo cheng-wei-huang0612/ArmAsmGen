@@ -280,6 +280,10 @@ The modular architecture makes it easy to extend:
 - **Optimization Passes**: Add register allocation and scheduling
 - **Platform Support**: Extend to other ARM variants
 
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ---
 
 **ArmAsmGen** provides a clean, powerful interface for generating optimized ARM64 assembly code with mathematical verification and professional-grade output quality.
