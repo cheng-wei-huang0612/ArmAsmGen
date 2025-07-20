@@ -1,0 +1,11 @@
+setup.py
+armasmgen/__init__.py
+armasmgen/builder.py
+armasmgen/core.py
+armasmgen.egg-info/PKG-INFO
+armasmgen.egg-info/SOURCES.txt
+armasmgen.egg-info/dependency_links.txt
+armasmgen.egg-info/top_level.txt
+armasmgen/mixins/__init__.py
+armasmgen/mixins/arithmetic.py
+armasmgen/mixins/memory.py
