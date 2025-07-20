@@ -13,8 +13,19 @@ class Instruction:
     block: str | None = None    # 新增 → 產生指令的 block label
 
     def render(self, indent: bool = False) -> str:
-        def _fmt(v): return f"#{v}" if isinstance(v, int) else v
-        body = self.template.format(**{k: _fmt(v) for k, v in self.kwargs.items()})
+        def _fmt(k, v): 
+            if isinstance(v, int):
+                # Check if the template already has # for this parameter
+                placeholder = "{" + k + "}"
+                if f"#{placeholder}" in self.template:
+                    # Template already has #, don't add another one
+                    return str(v)
+                else:
+                    # Template doesn't have #, add it
+                    return f"#{v}"
+            return v
+        
+        body = self.template.format(**{k: _fmt(k, v) for k, v in self.kwargs.items()})
 
         return ("    " * self.depth + body) if indent else body
 class BaseAsm:

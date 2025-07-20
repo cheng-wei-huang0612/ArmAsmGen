@@ -19,6 +19,11 @@ armasmgen ── AArch64 (Arm v8-A) assembly generator DSL.
 
 from .core import Instruction, BaseAsm
 from .builder import ASMCode, Block
+from .register import (
+    Register, RegisterType, RegisterWidth, RegisterPool,
+    AArch64RegisterPools, aarch64_pools,
+    x_reg, w_reg, v_reg, d_reg, virtual_x, virtual_v
+)
 
 # 如果你想提供「全部 mixin 都已注入」的便利類別，可加：
 from .mixins import arithmetic, memory  # 依需求匯入更多
@@ -35,4 +40,17 @@ __all__ = [
     "ASMCode",
     "Block",
     "AsmFunc",
+    # Register system
+    "Register",
+    "RegisterType",
+    "RegisterWidth", 
+    "RegisterPool",
+    "AArch64RegisterPools",
+    "aarch64_pools",
+    "x_reg",
+    "w_reg", 
+    "v_reg",
+    "d_reg",
+    "virtual_x",
+    "virtual_v",
 ]
