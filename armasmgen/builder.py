@@ -81,6 +81,7 @@ class ASMCode(Block):
         return self
 
     def __exit__(self, exc_type, exc, tb):
+        self.RET()
         _current.reset(self._token)
         # 不自動列印；由使用者手動呼叫 stdout()/encode()
 

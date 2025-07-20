@@ -161,6 +161,30 @@ class MemoryMixin:
             kwargs=dict(src0=src0_str, src1=src1_str, imm=imm)
         ))
 
+    def STP_pre(self, src1: RegArg, src2: RegArg, base: RegArg, offset: int):
+        """Store pair with pre-decrement: stp src1, src2, [base, #offset]!"""
+        if offset % 8 != 0 or not (-512 <= offset <= 504):
+            raise ValueError("STP pre-decrement offset must be 8-byte aligned and in range [-512, 504]")
+        src1_str, src2_str, base_str = self._reg_to_str(src1), self._reg_to_str(src2), self._reg_to_str(base)
+        self.emit(Instruction(
+            template="stp {src1}, {src2}, [{base}, #{offset}]!",
+            dsts=[base_str],
+            srcs=[src1_str, src2_str, base_str],
+            kwargs=dict(src1=src1_str, src2=src2_str, base=base_str, offset=offset)
+        ))
+
+    def LDP_post(self, dst1: RegArg, dst2: RegArg, base: RegArg, offset: int):
+        """Load pair with post-increment: ldp dst1, dst2, [base], #offset"""
+        if offset % 8 != 0 or not (-512 <= offset <= 504):
+            raise ValueError("LDP post-increment offset must be 8-byte aligned and in range [-512, 504]")
+        dst1_str, dst2_str, base_str = self._reg_to_str(dst1), self._reg_to_str(dst2), self._reg_to_str(base)
+        self.emit(Instruction(
+            template="ldp {dst1}, {dst2}, [{base}], #{offset}",
+            dsts=[dst1_str, dst2_str, base_str],
+            srcs=[base_str],
+            kwargs=dict(dst1=dst1_str, dst2=dst2_str, base=base_str, offset=offset)
+        ))
+
     # Vector Memory Operations with Register Validation
     def _validate_vector_register(self, reg: RegArg, param_name: str) -> str:
         """Validate vector register and return string representation"""
