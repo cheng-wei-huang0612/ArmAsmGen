@@ -17,7 +17,7 @@ armasmgen ── AArch64 (Arm v8-A) assembly generator DSL.
     print(asm.encode())
 """
 
-from .core import Instruction, BaseAsm
+from .core import Instruction, BaseAsm, RegArg
 from .builder import ASMCode, Block
 from .register import (
     Register, RegisterType, RegisterWidth, RegisterPool,
@@ -40,6 +40,7 @@ __all__ = [
     "ASMCode",
     "Block",
     "AsmFunc",
+    "RegArg",
     # Register system
     "Register",
     "RegisterType",

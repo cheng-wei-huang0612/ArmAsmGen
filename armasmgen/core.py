@@ -1,6 +1,13 @@
 # armasmgen/core.py
 from dataclasses import dataclass
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, TYPE_CHECKING
+
+# Avoid circular imports
+if TYPE_CHECKING:
+    from .register import Register
+
+# Type alias for register arguments
+RegArg = Union['Register', str]
 
 
 @dataclass
@@ -35,6 +42,12 @@ class BaseAsm:
     def emit(self, inst: Instruction):
         inst.depth = getattr(self, 'depth', 0)
         self._inst.append(inst)
+
+    def _reg_to_str(self, reg: RegArg) -> str:
+        """Convert register argument to string representation"""
+        if hasattr(reg, '__str__'):  # Works for both Register objects and strings
+            return str(reg)
+        return str(reg)
 
     def lines(self):
         for i in self._inst:
