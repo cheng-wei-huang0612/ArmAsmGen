@@ -1,13 +1,15 @@
 # armasmgen/builder.py
 from contextvars import ContextVar
 from .core import BaseAsm, Instruction
-from .mixins import arithmetic, memory
+from .mixins import arithmetic, memory, logic, control
 
 _current: ContextVar["Block"] = ContextVar("_current")
 
 class Block(BaseAsm,
             arithmetic.ArithmeticMixin,
-            memory.MemoryMixin):
+            memory.MemoryMixin,
+            logic.LogicMixin,
+            control.ControlFlowMixin):
     def __init__(self, label: str | None = None):
         super().__init__()
         self.label = label
@@ -39,19 +41,42 @@ class Block(BaseAsm,
 
 # --------------------------------------------------------------------
 class ASMCode(Block):
-    def __init__(self):
-        super().__init__(label=None)
+    def __init__(self, label: str | None = None):
+        super().__init__(label=label)
         self._equs: list[str] = []
         self._bits: list[str] = []
         self._labels: set[str] = set()
 
     # ----- pseudo-op -----
-    def equ(self, name, value): self._equs.append(f"{name} EQU {value}")
+    def equ(self, name, value): self._equs.append(f"{name} .equ {value}")
 
     # ---------- context ----------
     def __enter__(self):
-        # ASMCode 當頂層：先把自己推進 context，depth 保持 0
+        # 進入區塊前把自己推進 context
         self._token = _current.set(self)
+
+        # 若有 label，先 emit 1 行 label 指令（附層級）
+        if self.label:
+            self.emit(Instruction(
+                template=f".global {self.label}",
+                dsts=[], srcs=[], kwargs={},
+                depth=self.depth, block=self.label
+            ))
+            self.emit(Instruction(
+                template=f".global _{self.label}",
+                dsts=[], srcs=[], kwargs={},
+                depth=self.depth, block=self.label
+            ))
+            self.emit(Instruction(
+                template=f"{self.label}:",
+                dsts=[], srcs=[], kwargs={},
+                depth=self.depth, block=self.label
+            ))
+            self.emit(Instruction(
+                template=f"_{self.label}:",
+                dsts=[], srcs=[], kwargs={},
+                depth=self.depth, block=self.label
+            ))
         return self
 
     def __exit__(self, exc_type, exc, tb):
@@ -67,3 +92,8 @@ class ASMCode(Block):
     def stdout(self, *, indent: bool = True):
         """直接列印組譯碼（方便 quick demo）。"""
         print(self.encode(indent=indent))
+
+    def export_to_file(self, filepath: str, *, indent: bool = True):
+        """將組譯碼匯出到檔案。"""
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(self.encode(indent=indent))

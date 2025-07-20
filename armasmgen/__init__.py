@@ -25,12 +25,16 @@ from .register import (
     x_reg, w_reg, v_reg, d_reg, virtual_x, virtual_v
 )
 
+# Import mixins for direct access
+from .mixins import ArithmeticMixin, MemoryMixin, LogicMixin
+
 # 如果你想提供「全部 mixin 都已注入」的便利類別，可加：
-from .mixins import arithmetic, memory  # 依需求匯入更多
+from .mixins import arithmetic, memory, logic  # 依需求匯入更多
 
 class AsmFunc(Block,                      # Block already inherits mixins
               arithmetic.ArithmeticMixin,
-              memory.MemoryMixin):
+              memory.MemoryMixin,
+              logic.LogicMixin):
     """預組合：最常用指令集一次到位"""
     pass
 
@@ -54,4 +58,8 @@ __all__ = [
     "d_reg",
     "virtual_x",
     "virtual_v",
+    # Mixins
+    "ArithmeticMixin",
+    "MemoryMixin", 
+    "LogicMixin",
 ]
