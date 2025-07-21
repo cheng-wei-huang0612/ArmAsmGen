@@ -29,6 +29,13 @@ class Block(BaseAsm,
                 depth=self.depth, block=self.label
             ))
         return self
+    
+    def emitline(self):
+        self.emit(Instruction(
+            template="",
+            dsts=[], srcs=[], kwargs={},
+            depth=self.depth, block=self.label
+        ))
 
     def __exit__(self, exc_type, exc, tb):
         # pop context，取得父層
@@ -44,12 +51,6 @@ class Block(BaseAsm,
 class ASMCode(Block):
     def __init__(self, label: str | None = None):
         super().__init__(label=label)
-        self._equs: list[str] = []
-        self._bits: list[str] = []
-        self._labels: set[str] = set()
-
-    # ----- pseudo-op -----
-    def equ(self, name, value): self._equs.append(f"{name} .equ {value}")
 
     # ---------- context ----------
     def __enter__(self):
@@ -81,13 +82,41 @@ class ASMCode(Block):
         return self
 
     def __exit__(self, exc_type, exc, tb):
-        self.RET()
+        self.emit(Instruction(
+            template="ret",
+            dsts=[], srcs=[], kwargs={},
+            depth=self.depth, block=self.label
+        ))
+        _current.reset(self._token)
+        parent = _current.get(None)
+        if parent is not None:
+            parent._inst.extend(self._inst)
+
+
+
+class BackgroundCode(Block):
+    def __init__(self, label: str | None = None):
+        super().__init__(label=label)
+        self.depth = -1
+
+
+
+
+    # ---------- context ----------
+    def __enter__(self):
+        # 進入區塊前把自己推進 context
+        self._token = _current.set(self)
+
+        
+
+    def __exit__(self, exc_type, exc, tb):
+
         _current.reset(self._token)
         # 不自動列印；由使用者手動呼叫 stdout()/encode()
 
     # ---------- export ----------
     def encode(self, *, indent: bool = True) -> str:
-        parts = self._equs + self._bits + [""]
+        parts = [""]  # Start with an empty line
         parts += [inst.render(indent=indent) for inst in self._inst]
         return "\n".join(parts)
 
@@ -99,3 +128,46 @@ class ASMCode(Block):
         """將組譯碼匯出到檔案。"""
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(self.encode(indent=indent))
+
+
+class DataBlock(Block):
+    def __init__(self, label: str | None = None, align: int = 4):
+        super().__init__(label=label)
+        self.align = align
+
+    def add_data(self, size : str, data: int | str):
+        if size not in ["byte", "hword", "half", "word", "xword"]:
+            raise ValueError("size must be one of 'byte', 'hword', 'half', 'word', 'xword'")
+        self.emit(Instruction(
+            template=f".{size} {data}",
+            dsts=[], srcs=[], kwargs={},
+            depth=self.depth, block=self.label
+        ))
+
+    def __enter__(self):
+        # 進入區塊前把自己推進 context
+        self._token = _current.set(self)
+        self.emit(Instruction(
+            template=f"{self.label}:",  
+            dsts=[], srcs=[], kwargs={},
+            depth=self.depth, block=self.label
+        ))
+        self.emit(Instruction(
+            template=f".align {self.align}",
+            dsts=[], srcs=[], kwargs={},
+            depth=self.depth, block=self.label
+        ))
+
+        return self
+    
+
+    def __exit__(self, exc_type, exc, tb):
+        self.emitline()
+
+        # pop context，取得父層
+        _current.reset(self._token)
+        parent = _current.get(None)
+
+        # 把自己累積的 inst 串接到父層
+        if parent is not None:
+            parent._inst.extend(self._inst)
